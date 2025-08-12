@@ -27,3 +27,6 @@ data/
 
 # Keep placeholder
 !data/.gitkeep
+
+# Celery beat local schedule
+backend/celerybeat-schedule*
