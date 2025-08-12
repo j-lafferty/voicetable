@@ -113,3 +113,13 @@ def index_audio(project_id: int):
         DataRow.objects.bulk_update(updates, ["audio"], batch_size=2000)
 
     return {"status": "ok", "audio_files_indexed": found}
+
+@shared_task
+def rescan_all_projects():
+    from .models import Project  # local import to avoid early app loading issues
+    count = 0
+    for p in Project.objects.all().only("id"):
+        index_audio.delay(p.id)
+        count += 1
+    return {"status": "ok", "projects_enqueued": count}
+

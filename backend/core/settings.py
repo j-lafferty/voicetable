@@ -142,5 +142,11 @@ CELERY_RESULT_BACKEND = CELERY_BROKER_URL
 CELERY_TASK_ALWAYS_EAGER = False
 CELERY_TIMEZONE = "UTC"
 
-# Beat (periodic) — we'll schedule the audio rescan here soon
-CELERY_BEAT_SCHEDULE = {}
+# Beat (periodic) — schedule for the audio rescan
+CELERY_BEAT_SCHEDULE = {
+    # Every 5 minutes, enqueue an audio rescan for all projects
+    "rescan-audio-every-5-min": {
+        "task": "app.tasks.rescan_all_projects",
+        "schedule": 300.0,  # seconds
+    },
+}
