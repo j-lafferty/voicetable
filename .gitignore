@@ -13,3 +13,17 @@ backend/static/
 
 # Docker
 postgres_data/
+
+# Project data (do not commit)
+data/
+**/data/
+*.xlsx
+*.xls
+*.csv
+*.wav
+*.mp3
+*.m4a
+*.flac
+
+# Keep placeholder
+!data/.gitkeep
