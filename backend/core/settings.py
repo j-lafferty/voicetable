@@ -135,3 +135,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CELERY_BROKER_URL = os.environ.get("REDIS_URL", "redis://redis:6379/0")
 CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+CELERY_TASK_ALWAYS_EAGER = False
+CELERY_TIMEZONE = "UTC"
+
+# Beat (periodic) — we'll schedule the audio rescan here soon
+CELERY_BEAT_SCHEDULE = {}
