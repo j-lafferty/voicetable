@@ -23,7 +23,9 @@ services:
     env_file: .env
     volumes:
       - ./backend:/app
-      # add audio mounts later (read-only) when you’re ready
+      - ./data/excel:/data:ro
+      - ./data/audio/en:/audio/en:ro
+      - ./data/audio/ja:/audio/ja:ro
     depends_on:
       db:
         condition: service_healthy
@@ -39,6 +41,9 @@ services:
     env_file: .env
     volumes:
       - ./backend:/app
+      - ./data/excel:/data:ro
+      - ./data/audio/en:/audio/en:ro
+      - ./data/audio/ja:/audio/ja:ro
     depends_on:
       - web
       - redis
@@ -58,7 +63,8 @@ services:
     image: nginx:alpine
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      # add audio mounts later for direct serving
+      - ./data/audio/en:/srv/audio/en:ro
+      - ./data/audio/ja:/srv/audio/ja:ro
     ports:
       - "80:80"
     depends_on:

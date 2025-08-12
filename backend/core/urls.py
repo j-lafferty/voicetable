@@ -20,5 +20,14 @@ from app import views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", views.health, name="health"),
+
+    # UI pages
+    path("", views.dashboard, name="dashboard"),
+    path("project/<slug:slug>/", views.project_view, name="project_view"),
+
+    # API
+    path("api/project/<slug:slug>/rows", views.api_project_rows, name="api_project_rows"),
+
+    # Health
+    path("health/", views.health, name="health"),
 ]
