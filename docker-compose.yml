@@ -1,0 +1,63 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: voicetable
+      POSTGRES_USER: vtuser
+      POSTGRES_PASSWORD: vtpass
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vtuser -d voicetable"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+
+  web:
+    build: ./backend
+    command: gunicorn core.wsgi:application --bind 0.0.0.0:8000 --workers 3
+    env_file: .env
+    volumes:
+      - ./backend:/app
+      # add audio mounts later (read-only) when you’re ready
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    expose:
+      - "8000"
+
+  worker:
+    build: ./backend
+    command: celery -A core worker -l info
+    env_file: .env
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - web
+      - redis
+      - db
+
+  beat:
+    build: ./backend
+    command: celery -A core beat -l info
+    env_file: .env
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - worker
+
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      # add audio mounts later for direct serving
+    ports:
+      - "80:80"
+    depends_on:
+      - web

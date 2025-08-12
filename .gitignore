@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Django
+backend/static/
+*.sqlite3
+
+# Env & secrets
+.env
+.env.*.local
+
+# Docker
+postgres_data/
