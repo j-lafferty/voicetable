@@ -1,0 +1,21 @@
+# Never send local project data into Docker build context
+data/
+
+# Prevent accidental build of DB/Redis volumes
+postgres_data/
+redis_data/
+
+# Local env/config files
+.env
+*.env
+.env.*
+
+# Git files
+.git
+.gitignore
+
+# OS / editor files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
