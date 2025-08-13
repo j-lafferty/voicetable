@@ -46,63 +46,64 @@
     {{ project.column_headers|json_script:"project-columns" }}
 
     <script>
-        const slug = "{{ project.slug }}";
-        const projectColumns = JSON.parse(
-            document.getElementById("project-columns").textContent
-        );
-        let page = 1;
-      
-        const tbody = document.querySelector("#grid tbody");
-        const meta = document.getElementById("meta");
-        const searchEl = document.getElementById("search");
-        const pagesizeEl = document.getElementById("pagesize");
-      
-        async function load() {
-          const params = new URLSearchParams({
-            page, page_size: pagesizeEl.value,
-            search: searchEl.value.trim()
-          });
-          const res = await fetch(`/api/project/${slug}/rows?` + params.toString(), {credentials:'same-origin'});
-          if (!res.ok) { alert("Failed to load"); return; }
-          const data = await res.json();
-          render(data);
-        }
-      
-        function render(data) {
-          tbody.innerHTML = "";
-          for (const row of data.rows) {
-            const tr = document.createElement("tr");
-            const tdId = document.createElement("td"); tdId.textContent = row.row_id; tr.appendChild(tdId);
-            for (const col of projectColumns) {
-              const td = document.createElement("td"); td.textContent = row.data[col] ?? ""; tr.appendChild(td);
-            }
-            const tdAudio = document.createElement("td");
-            const langs = Object.keys(row.audio || {});
-            if (langs.length) {
-              for (const lang of langs) {
-                const audio = document.createElement("audio");
-                audio.controls = true;
-                audio.src = row.audio[lang];
-                audio.preload = "none";
-                tdAudio.appendChild(document.createTextNode(lang + ": "));
-                tdAudio.appendChild(audio);
-                tdAudio.appendChild(document.createElement("br"));
-              }
-            } else {
-              tdAudio.textContent = "—";
-            }
-            tr.appendChild(tdAudio);
-            tbody.appendChild(tr);
+      {{ project.column_headers|json_script:"project-columns" }}
+      const slug = "{{ project.slug }}";
+      const projectColumns = JSON.parse(document.getElementById("project-columns").textContent);
+      let page = 1;
+      let timer = null;
+    
+      const tbody = document.querySelector("#grid tbody");
+      const meta = document.getElementById("meta");
+      const searchEl = document.getElementById("search");
+      const pagesizeEl = document.getElementById("pagesize");
+    
+      async function load() {
+        meta.textContent = "Loading…";
+        const params = new URLSearchParams({
+          page, page_size: pagesizeEl.value, search: searchEl.value.trim()
+        });
+        const res = await fetch(`/api/project/${slug}/rows?` + params.toString(), {credentials:'same-origin'});
+        if (!res.ok) { meta.textContent = "Error"; return; }
+        const data = await res.json();
+        render(data);
+      }
+    
+      function render(data) {
+        tbody.innerHTML = "";
+        for (const row of data.rows) {
+          const tr = document.createElement("tr");
+          const tdId = document.createElement("td"); tdId.textContent = row.row_id; tr.appendChild(tdId);
+          for (const col of projectColumns) {
+            const td = document.createElement("td"); td.textContent = row.data[col] ?? ""; tr.appendChild(td);
           }
-          meta.textContent = `Page ${data.page} of ${data.pages} • ${data.total} rows`;
+          const tdAudio = document.createElement("td");
+          const langs = Object.keys(row.audio || {});
+          if (langs.length) {
+            for (const lang of langs) {
+              const audio = document.createElement("audio"); audio.controls = true; audio.preload = "none";
+              audio.src = row.audio[lang];
+              tdAudio.appendChild(document.createTextNode(lang + ": "));
+              tdAudio.appendChild(audio);
+              tdAudio.appendChild(document.createElement("br"));
+            }
+          } else { tdAudio.textContent = "—"; }
+          tr.appendChild(tdAudio);
+          tbody.appendChild(tr);
         }
-      
-        document.getElementById("prev").onclick = () => { if (page > 1) { page--; load(); } };
-        document.getElementById("next").onclick = () => { page++; load(); };
-        searchEl.onchange = () => { page = 1; load(); };
-        pagesizeEl.onchange = () => { page = 1; load(); };
-      
-        load();
+        meta.textContent = `Page ${data.page} of ${data.pages} • ${data.total} rows`;
+      }
+    
+      function debounceLoad() {
+        clearTimeout(timer);
+        timer = setTimeout(() => { page = 1; load(); }, 250);
+      }
+    
+      document.getElementById("prev").onclick = () => { if (page > 1) { page--; load(); } };
+      document.getElementById("next").onclick = () => { page++; load(); };
+      searchEl.oninput = debounceLoad;
+      pagesizeEl.onchange = () => { page = 1; load(); };
+    
+      load();
     </script>
   </body>
 </html>
