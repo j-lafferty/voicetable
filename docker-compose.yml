@@ -63,6 +63,7 @@ services:
     image: nginx:alpine
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./backend/static:/app/static:ro
       - ./data/audio/en:/srv/audio/en:ro
       - ./data/audio/ja:/srv/audio/ja:ro
     ports:
