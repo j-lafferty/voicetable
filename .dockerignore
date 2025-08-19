@@ -1,4 +1,6 @@
 # Never send local project data into Docker build context
+backend/media/
+source_audio/
 data/
 
 # Prevent accidental build of DB/Redis volumes
