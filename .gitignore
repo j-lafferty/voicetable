@@ -9,14 +9,26 @@ backend/static/
 
 # Env & secrets
 .env
+*.env
+.env.*
 .env.*.local
 
 # Docker
 postgres_data/
 
-# Project data (do not commit)
+# App-managed media (uploaded Excel, copied audio)
+backend/media/
+**/media/
+
+# Raw source audio (read-only import source)
+source_audio/
+**/source_audio/
+
+# Legacy data dir (from early setup)
 data/
 **/data/
+
+# Common data file types (extra belt-and-suspenders)
 *.xlsx
 *.xls
 *.csv
